@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import '../../core/streak_calculator.dart';
+import '../theme/app_theme.dart';
 
 class StreakBadge extends ConsumerWidget {
   const StreakBadge({super.key});
@@ -20,74 +21,80 @@ class StreakBadge extends ConsumerWidget {
           orElse: () => 50.0,
         );
         final calc = StreakCalculator(safeThresholdMg: threshold);
-        final streakData = calc.calculate(entries);
+        final data = calc.calculate(entries);
 
         return GestureDetector(
-          onTap: () => _showStreakSheet(context, entries, calc),
+          onTap: () => _showSheet(context, entries, calc),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E2E),
-              borderRadius: BorderRadius.circular(16),
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: streakData.currentStreak > 0
-                    ? Colors.orange.withAlpha(120)
-                    : Colors.white12,
-                width: 1,
+                color: data.currentStreak > 0
+                    ? AppColors.orange.withAlpha(80)
+                    : AppColors.glassBorder,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(50),
+                  blurRadius: 16,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Text('🔥', style: TextStyle(fontSize: 22)),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.orange.withAlpha(22),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text('🔥',
+                          style: TextStyle(fontSize: 12)),
+                    ),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${streakData.currentStreak} day streak',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
-                        ),
-                        Text(
-                          'Best: ${streakData.longestStreak} days',
-                          style: const TextStyle(
-                              color: Colors.white54, fontSize: 12),
-                        ),
-                      ],
+                    const Text(
+                      'Streak',
+                      style: TextStyle(
+                        color: AppColors.textTertiary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      data.todayIsSafe
+                          ? Icons.check_circle_rounded
+                          : Icons.warning_amber_rounded,
+                      color: data.todayIsSafe
+                          ? AppColors.safe
+                          : AppColors.caution,
+                      size: 14,
                     ),
                   ],
                 ),
-                Row(
-                  children: [
-                    Icon(
-                      streakData.todayIsSafe
-                          ? Icons.check_circle_outline
-                          : Icons.warning_amber_rounded,
-                      color: streakData.todayIsSafe
-                          ? Colors.greenAccent
-                          : Colors.orangeAccent,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      streakData.todayIsSafe ? 'Today ✓' : 'At risk',
-                      style: TextStyle(
-                        color: streakData.todayIsSafe
-                            ? Colors.greenAccent
-                            : Colors.orangeAccent,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Icon(Icons.chevron_right,
-                        color: Colors.white30, size: 18),
-                  ],
+                const SizedBox(height: 10),
+                Text(
+                  '${data.currentStreak} days',
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  'Best: ${data.longestStreak}',
+                  style: const TextStyle(
+                    color: AppColors.textTertiary,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),
@@ -97,84 +104,79 @@ class StreakBadge extends ConsumerWidget {
     );
   }
 
-  void _showStreakSheet(
-      BuildContext context, dynamic entries, StreakCalculator calc) {
+  void _showSheet(BuildContext context, dynamic entries, StreakCalculator calc) {
     final last7 = calc.lastNDays(entries, 7);
     final now = DateTime.now();
-    final dayNames = <String>[];
-    for (int i = 6; i >= 0; i--) {
-      final d = now.subtract(Duration(days: i));
-      dayNames.add(i == 0
-          ? 'Today'
-          : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][d.weekday - 1]);
-    }
+    const dayAbbr = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final labels = List.generate(7, (i) {
+      final d = now.subtract(Duration(days: 6 - i));
+      return i == 6 ? 'Today' : dayAbbr[d.weekday - 1];
+    });
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A28),
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '🔥 Streak History',
+              'Streak History',
               style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             const Text(
-              'Days where evening caffeine was below your threshold',
-              style: TextStyle(color: Colors.white54, fontSize: 13),
+              'Days where evening caffeine stayed below your threshold',
+              style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(7, (i) {
                 final safe = last7[i];
+                final color = safe ? AppColors.safe : AppColors.danger;
                 return Column(
                   children: [
                     Container(
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: safe
-                            ? Colors.greenAccent.withAlpha(40)
-                            : Colors.redAccent.withAlpha(40),
+                        color: color.withAlpha(30),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: safe ? Colors.greenAccent : Colors.redAccent,
-                          width: 1.5,
-                        ),
+                        border: Border.all(color: color.withAlpha(80)),
                       ),
                       child: Center(
                         child: Text(
                           safe ? '✓' : '✗',
                           style: TextStyle(
-                            color:
-                                safe ? Colors.greenAccent : Colors.redAccent,
-                            fontWeight: FontWeight.bold,
+                            color: color,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      dayNames[i],
+                      labels[i],
                       style: const TextStyle(
-                          color: Colors.white54, fontSize: 11),
+                        color: AppColors.textTertiary,
+                        fontSize: 10,
+                      ),
                     ),
                   ],
                 );
               }),
             ),
-            const SizedBox(height: 16),
           ],
         ),
       ),

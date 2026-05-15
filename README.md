@@ -1,17 +1,37 @@
-# caffeine_tracker
+# Caffeine Tracker ☕
 
-A new Flutter project.
+A premium Flutter caffeine tracking app with real-time decay modelling, HealthKit integration, barcode scanner, AI advice, GLP-1 mode, and streak gamification.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **Real-time decay graph** — C(t) = C₀ × 0.5^(t/5), 5hr half-life
+- **224 UK-focused drink presets** with category picker
+- **Voice logging** — "large oat flat white" → 130mg
+- **Barcode scanner** — Open Food Facts API lookup
+- **Heart rate integration** — HealthKit / Health Connect
+- **AI advice engine** — rule-based + Gemini chat fallback
+- **GLP-1 mode** — Mounjaro 1.5×, Ozempic 1.4× multipliers
+- **Streak gamification** — daily logging streaks
+- **Pro paywall** — £2.99/yr via in-app purchase
+- **CSV/JSON export**
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Flutter · SQLite · Firebase · HealthKit · ARKit · fl_chart · Riverpod · go_router
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Live Demo
+
+[caffeine-tracker.pages.dev](https://caffeine-tracker.pages.dev)
+
+## Development
+
+```bash
+flutter pub get
+flutter run
+flutter test        # 86 tests
+flutter analyze
+```
+
+## License
+
+MIT

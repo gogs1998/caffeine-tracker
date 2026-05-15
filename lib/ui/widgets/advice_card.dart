@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/advice_engine.dart';
 import '../../core/providers.dart';
+import '../theme/app_theme.dart';
 
 class AdviceCard extends ConsumerWidget {
   const AdviceCard({super.key});
@@ -10,148 +11,194 @@ class AdviceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final adviceAsync = ref.watch(adviceProvider);
-
     return adviceAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
-      data: (advice) => _AdviceCardContent(advice: advice),
+      data: (advice) => _AdviceContent(advice: advice),
     );
   }
 }
 
-class _AdviceCardContent extends StatefulWidget {
+class _AdviceContent extends StatefulWidget {
   final CaffeineAdvice advice;
-  const _AdviceCardContent({required this.advice});
+  const _AdviceContent({required this.advice});
 
   @override
-  State<_AdviceCardContent> createState() => _AdviceCardContentState();
+  State<_AdviceContent> createState() => _AdviceContentState();
 }
 
-class _AdviceCardContentState extends State<_AdviceCardContent> {
+class _AdviceContentState extends State<_AdviceContent> {
   bool _expanded = false;
 
-  Color get _borderColor {
-    switch (widget.advice.level) {
-      case AdviceLevel.warning:
-        return Colors.redAccent;
-      case AdviceLevel.caution:
-        return Colors.amber;
-      case AdviceLevel.ok:
-        return Colors.greenAccent;
-    }
+  Color get _accent {
+    return switch (widget.advice.level) {
+      AdviceLevel.warning => AppColors.danger,
+      AdviceLevel.caution => AppColors.caution,
+      AdviceLevel.ok => AppColors.safe,
+    };
   }
 
   IconData get _icon {
-    switch (widget.advice.level) {
-      case AdviceLevel.warning:
-        return Icons.warning_amber_rounded;
-      case AdviceLevel.caution:
-        return Icons.info_outline_rounded;
-      case AdviceLevel.ok:
-        return Icons.check_circle_outline_rounded;
-    }
+    return switch (widget.advice.level) {
+      AdviceLevel.warning => Icons.warning_amber_rounded,
+      AdviceLevel.caution => Icons.info_outline_rounded,
+      AdviceLevel.ok => Icons.check_circle_outline_rounded,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.push('/advice'),
-      child: Card(
-        color: const Color(0xFF1E1E2E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 4,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.glassBorder),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(50),
+              blurRadius: 16,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
         clipBehavior: Clip.antiAlias,
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Coloured left border
-              Container(width: 4, color: _borderColor),
+              // Gradient left accent bar
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [_accent, _accent.withAlpha(80)],
+                  ),
+                ),
+              ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Header row
                       Row(
                         children: [
-                          Icon(_icon, color: _borderColor, size: 18),
-                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: _accent.withAlpha(22),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(_icon, color: _accent, size: 14),
+                          ),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               widget.advice.headline,
                               style: TextStyle(
-                                color: _borderColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                                color: _accent,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
                               ),
                             ),
                           ),
                           const Icon(
                             Icons.arrow_forward_ios_rounded,
-                            color: Colors.white30,
-                            size: 14,
+                            color: AppColors.textDisabled,
+                            size: 12,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
-                      // Body text
+                      const SizedBox(height: 8),
                       Text(
                         widget.advice.body,
                         style: const TextStyle(
-                            color: Colors.white70, fontSize: 12, height: 1.4),
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          height: 1.5,
+                        ),
                       ),
-                      // Expandable tips
                       if (widget.advice.tips.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () =>
                               setState(() => _expanded = !_expanded),
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 _expanded ? 'Hide tips' : 'Show tips',
                                 style: TextStyle(
-                                    color: _borderColor,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500),
+                                  color: _accent,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               const SizedBox(width: 4),
                               Icon(
                                 _expanded
-                                    ? Icons.expand_less
-                                    : Icons.expand_more,
-                                color: _borderColor,
-                                size: 16,
+                                    ? Icons.expand_less_rounded
+                                    : Icons.expand_more_rounded,
+                                color: _accent,
+                                size: 15,
                               ),
                             ],
                           ),
                         ),
-                        if (_expanded) ...[
-                          const SizedBox(height: 6),
-                          ...widget.advice.tips.map(
-                            (tip) => Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 4, left: 4),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('• ',
-                                      style: TextStyle(
-                                          color: _borderColor, fontSize: 12)),
-                                  Expanded(
-                                    child: Text(
-                                      tip,
-                                      style: const TextStyle(
-                                          color: Colors.white60, fontSize: 12),
+                        AnimatedCrossFade(
+                          firstChild: const SizedBox(width: double.infinity),
+                          secondChild: Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: widget.advice.tips
+                                  .map(
+                                    (tip) => Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 5),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                                top: 5, right: 8),
+                                            width: 4,
+                                            height: 4,
+                                            decoration: BoxDecoration(
+                                              color: _accent,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              tip,
+                                              style: const TextStyle(
+                                                color:
+                                                    AppColors.textSecondary,
+                                                fontSize: 12,
+                                                height: 1.4,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  )
+                                  .toList(),
                             ),
                           ),
-                        ],
+                          crossFadeState: _expanded
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                          duration: const Duration(milliseconds: 200),
+                        ),
                       ],
                     ],
                   ),

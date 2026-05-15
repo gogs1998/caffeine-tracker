@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../core/providers.dart';
 import '../../data/models/user_settings.dart';
+import '../theme/app_theme.dart';
 import '../widgets/current_level_card.dart';
 import '../widgets/decay_graph.dart';
 import '../widgets/heart_rate_badge.dart';
@@ -14,22 +15,15 @@ import '../widgets/streak_badge.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  String _greeting(UserSettings s, double caffeineMg) {
-    final hour = DateTime.now().hour;
+  String _greeting(UserSettings s, double mg) {
+    final h = DateTime.now().hour;
     final name = s.name;
-    final threshold = s.safeThresholdMg;
-    if (hour < 12) {
-      return caffeineMg > threshold
-          ? 'Steady there, $name ☕'
-          : 'Good morning, $name ☕';
-    } else if (hour < 18) {
-      return caffeineMg > threshold * 2
-          ? 'Easy on the coffee, $name 😬'
-          : 'Good afternoon, $name ☕';
+    if (h < 12) {
+      return mg > s.safeThresholdMg ? 'Steady there, $name' : 'Good morning, $name';
+    } else if (h < 18) {
+      return mg > s.safeThresholdMg * 2 ? 'Easy on the coffee, $name' : 'Good afternoon, $name';
     } else {
-      return caffeineMg > threshold
-          ? 'Time to switch to decaf, $name 🌙'
-          : 'Good evening, $name 🌙';
+      return mg > s.safeThresholdMg ? 'Time to switch, $name' : 'Good evening, $name';
     }
   }
 
@@ -40,31 +34,24 @@ class HomeScreen extends ConsumerWidget {
     final currentLevelAsync = ref.watch(currentLevelProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF12121A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A28),
+      backgroundColor: AppColors.bg,
+      extendBodyBehindAppBar: true,
+      appBar: _PremiumAppBar(
         title: settingsAsync.when(
-          loading: () => const Text('Caffeine Tracker',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18)),
-          error: (_, __) => const Text('Caffeine Tracker',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18)),
-          data: (settings) {
-            final mg = currentLevelAsync.maybeWhen(data: (v) => v, orElse: () => 0.0);
-            return Text(
-              _greeting(settings, mg),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 17),
-            );
+          loading: () => 'Caffeine',
+          error: (_, __) => 'Caffeine',
+          data: (s) {
+            final mg = currentLevelAsync.maybeWhen(
+                data: (v) => v, orElse: () => 0.0);
+            return _greeting(s, mg);
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white70),
-            onPressed: () => context.push('/settings'),
-          ),
-        ],
+        onSettings: () => context.push('/settings'),
       ),
       body: RefreshIndicator(
-        color: Colors.amber,
+        color: AppColors.amber,
+        backgroundColor: AppColors.surface,
+        displacement: 80,
         onRefresh: () async {
           ref.invalidate(entriesProvider);
           ref.invalidate(settingsProvider);
@@ -72,157 +59,40 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(heartRateProvider);
         },
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            MediaQuery.of(context).padding.top + kToolbarHeight + 8,
+            16,
+            100,
+          ),
           children: [
-            // ── Current level card ───────────────────────────────────────
+            // ── Hero gauge ──────────────────────────────────────────────
             const CurrentLevelCard(),
             const SizedBox(height: 12),
 
-            // ── Heart rate badge ──────────────────────────────────────────
-            const HeartRateBadge(),
+            // ── Stats row: Heart Rate + Streak ───────────────────────────
+            const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: HeartRateBadge()),
+                SizedBox(width: 12),
+                Expanded(child: StreakBadge()),
+              ],
+            ),
             const SizedBox(height: 12),
 
-            // ── Advice card ───────────────────────────────────────────────
+            // ── Advice card ──────────────────────────────────────────────
             const AdviceCard(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
-            // ── Streak badge ──────────────────────────────────────────────────
-            const StreakBadge(),
-            const SizedBox(height: 16),
+            // ── Decay graph ──────────────────────────────────────────────
+            _GraphCard(),
+            const SizedBox(height: 12),
 
-            // ── Decay graph ───────────────────────────────────────────────
-            Card(
-              color: const Color(0xFF1E1E2E),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              elevation: 4,
-              child: const Padding(
-                padding: EdgeInsets.fromLTRB(8, 12, 4, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 12, bottom: 4),
-                      child: Text(
-                        'Caffeine decay (24 h)',
-                        style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    DecayGraph(),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // ── Today's drinks ────────────────────────────────────────────
-            const Padding(
-              padding: EdgeInsets.only(left: 4, bottom: 8),
-              child: Text(
-                "Today's drinks",
-                style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600),
-              ),
-            ),
-            entriesAsync.when(
-              loading: () => const Center(
-                  child:
-                      CircularProgressIndicator(color: Colors.amber)),
-              error: (e, _) => Text('Error: $e',
-                  style: const TextStyle(color: Colors.redAccent)),
-              data: (entries) {
-                // Filter to today
-                final today = DateTime.now();
-                final todayEntries = entries.where((e) {
-                  return e.consumedAt.year == today.year &&
-                      e.consumedAt.month == today.month &&
-                      e.consumedAt.day == today.day;
-                }).toList()
-                  ..sort((a, b) => b.consumedAt.compareTo(a.consumedAt));
-
-                if (todayEntries.isEmpty) {
-                  return const Card(
-                    color: Color(0xFF1E1E2E),
-                    child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Center(
-                        child: Text('No drinks logged today',
-                            style: TextStyle(color: Colors.white38)),
-                      ),
-                    ),
-                  );
-                }
-
-                return Card(
-                  color: const Color(0xFF1E1E2E),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  elevation: 4,
-                  child: Column(
-                    children: todayEntries.asMap().entries.map((entry) {
-                      final idx = entry.key;
-                      final item = entry.value;
-                      return Column(
-                        children: [
-                          Dismissible(
-                            key: Key(item.id),
-                            direction: DismissDirection.endToStart,
-                            background: Container(
-                              alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.only(right: 20),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withAlpha(60),
-                                borderRadius: idx == 0
-                                    ? const BorderRadius.vertical(
-                                        top: Radius.circular(16))
-                                    : null,
-                              ),
-                              child: const Icon(Icons.delete_outline,
-                                  color: Colors.redAccent),
-                            ),
-                            onDismissed: (_) async {
-                              await ref
-                                  .read(caffeineRepositoryProvider)
-                                  .delete(item.id);
-                              ref.invalidate(entriesProvider);
-                              ref.invalidate(currentLevelProvider);
-                            },
-                            child: ListTile(
-                              leading: const Text('☕',
-                                  style: TextStyle(fontSize: 22)),
-                              title: Text(item.drinkName,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500)),
-                              subtitle: Text(
-                                DateFormat('HH:mm').format(item.consumedAt),
-                                style: const TextStyle(
-                                    color: Colors.white54, fontSize: 12),
-                              ),
-                              trailing: Text(
-                                '${item.mgAmount.toStringAsFixed(0)} mg',
-                                style: const TextStyle(
-                                    color: Colors.amber,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                          ),
-                          if (idx < todayEntries.length - 1)
-                            const Divider(
-                                color: Colors.white12, height: 1),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 80), // space for FAB
+            // ── Today's drinks ───────────────────────────────────────────
+            const _SectionLabel(text: "TODAY'S DRINKS"),
+            const SizedBox(height: 8),
+            _TodaysDrinks(entriesAsync: entriesAsync, ref: ref),
           ],
         ),
       ),
@@ -230,29 +100,359 @@ class HomeScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // ── Voice FAB ──────────────────────────────────────────────────────
           const VoiceInputButton(),
           const SizedBox(height: 12),
-          // ── Manual log FAB ─────────────────────────────────────────────────
-          FloatingActionButton(
+          _GlowFab(
             heroTag: 'manualFab',
-            backgroundColor: Colors.amber,
-            foregroundColor: Colors.black,
-            onPressed: () => context.push('/log'),
-            tooltip: 'Log drink manually',
+            color: AppColors.amber,
+            onTap: () => context.push('/log'),
+            tooltip: 'Log drink',
             child: const Text('☕', style: TextStyle(fontSize: 22)),
           ),
           const SizedBox(height: 12),
-          // ── Barcode scanner FAB ────────────────────────────────────────────
-          FloatingActionButton(
+          _GlowFab(
             heroTag: 'scanFab',
-            backgroundColor: Colors.orange,
-            foregroundColor: Colors.black,
-            onPressed: () => context.push('/scan'),
+            color: AppColors.orange,
+            onTap: () => context.push('/scan'),
             tooltip: 'Scan barcode',
-            child: const Icon(Icons.qr_code_scanner),
+            child: const Icon(Icons.qr_code_scanner_rounded),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Premium transparent app bar ─────────────────────────────────────────────
+
+class _PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final VoidCallback onSettings;
+  const _PremiumAppBar({required this.title, required this.onSettings});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: AppColors.bg.withAlpha(200),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.3,
+            ),
+          ),
+          Text(
+            DateFormat('EEEE, d MMMM').format(DateTime.now()),
+            style: const TextStyle(
+              color: AppColors.textTertiary,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.1,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.glassLayer,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.glassBorder),
+            ),
+            child: const Icon(Icons.settings_outlined,
+                color: AppColors.textSecondary, size: 18),
+          ),
+          onPressed: onSettings,
+        ),
+        const SizedBox(width: 4),
+      ],
+    );
+  }
+}
+
+// ─── Graph card ───────────────────────────────────────────────────────────────
+
+class _GraphCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: surfaceCard(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(18, 16, 18, 4),
+            child: Row(
+              children: [
+                Icon(Icons.show_chart_rounded,
+                    size: 16, color: AppColors.textTertiary),
+                SizedBox(width: 6),
+                Text(
+                  'CAFFEINE DECAY  ·  24 H',
+                  style: TextStyle(
+                    color: AppColors.textTertiary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(8, 0, 4, 8),
+            child: DecayGraph(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Today's drinks section ───────────────────────────────────────────────────
+
+class _TodaysDrinks extends StatelessWidget {
+  final AsyncValue entriesAsync;
+  final WidgetRef ref;
+  const _TodaysDrinks({required this.entriesAsync, required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    return entriesAsync.when(
+      loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.amber, strokeWidth: 2)),
+      error: (e, _) =>
+          Text('$e', style: const TextStyle(color: AppColors.danger)),
+      data: (entries) {
+        final today = DateTime.now();
+        final todayEntries = (entries as List).where((e) {
+          return e.consumedAt.year == today.year &&
+              e.consumedAt.month == today.month &&
+              e.consumedAt.day == today.day;
+        }).toList()
+          ..sort((a, b) => b.consumedAt.compareTo(a.consumedAt));
+
+        if (todayEntries.isEmpty) {
+          return Container(
+            decoration: surfaceCard(),
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+            child: const Center(
+              child: Column(
+                children: [
+                  Text('☕',
+                      style: TextStyle(
+                          fontSize: 32,
+                          color: AppColors.textDisabled)),
+                  SizedBox(height: 8),
+                  Text(
+                    'No drinks logged today',
+                    style: TextStyle(
+                        color: AppColors.textDisabled, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Container(
+          decoration: surfaceCard(),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Column(
+              children: todayEntries.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final item = entry.value;
+                final isLast = idx == todayEntries.length - 1;
+                return Column(
+                  children: [
+                    _DrinkRow(
+                      item: item,
+                      isFirst: idx == 0,
+                      isLast: isLast,
+                      onDelete: () async {
+                        await ref
+                            .read(caffeineRepositoryProvider)
+                            .delete(item.id);
+                        ref.invalidate(entriesProvider);
+                        ref.invalidate(currentLevelProvider);
+                      },
+                    ),
+                    if (!isLast)
+                      const Divider(
+                          height: 1, color: AppColors.glassBorder,
+                          indent: 20, endIndent: 20),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _DrinkRow extends StatelessWidget {
+  final dynamic item;
+  final bool isFirst;
+  final bool isLast;
+  final VoidCallback onDelete;
+  const _DrinkRow(
+      {required this.item,
+      required this.isFirst,
+      required this.isLast,
+      required this.onDelete});
+
+  Color get _mgColor {
+    final mg = item.mgAmount as double;
+    if (mg < 80) return AppColors.safe;
+    if (mg < 200) return AppColors.caution;
+    return AppColors.danger;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: Key(item.id as String),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        color: AppColors.danger.withAlpha(30),
+        child: const Icon(Icons.delete_outline_rounded,
+            color: AppColors.danger, size: 20),
+      ),
+      onDismissed: (_) => onDelete(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        child: Row(
+          children: [
+            // Emoji container
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: _mgColor.withAlpha(22),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: _mgColor.withAlpha(50)),
+              ),
+              child: const Center(
+                child: Text('☕', style: TextStyle(fontSize: 18)),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.drinkName as String,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    DateFormat('HH:mm').format(item.consumedAt as DateTime),
+                    style: const TextStyle(
+                        color: AppColors.textTertiary, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: _mgColor.withAlpha(22),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: _mgColor.withAlpha(60)),
+              ),
+              child: Text(
+                '${(item.mgAmount as double).toStringAsFixed(0)} mg',
+                style: TextStyle(
+                  color: _mgColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: AppColors.textTertiary,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+class _GlowFab extends StatelessWidget {
+  final String heroTag;
+  final Color color;
+  final VoidCallback onTap;
+  final String tooltip;
+  final Widget child;
+  const _GlowFab({
+    required this.heroTag,
+    required this.color,
+    required this.onTap,
+    required this.tooltip,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: color.withAlpha(80),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: FloatingActionButton(
+        heroTag: heroTag,
+        backgroundColor: color,
+        foregroundColor: Colors.black,
+        onPressed: onTap,
+        tooltip: tooltip,
+        child: child,
       ),
     );
   }

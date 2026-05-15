@@ -9,6 +9,7 @@ import 'ui/screens/settings_screen.dart';
 import 'ui/screens/scanner_screen.dart';
 import 'ui/screens/advice_screen.dart';
 import 'ui/screens/paywall_screen.dart';
+import 'ui/theme/app_theme.dart';
 
 final _router = GoRouter(
   routes: [
@@ -56,31 +57,7 @@ class CaffeineTrackerApp extends StatelessWidget {
       title: 'Caffeine Tracker',
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF12121A),
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.amber,
-          secondary: Colors.orange,
-          surface: Color(0xFF1E1E2E),
-          onPrimary: Colors.black87,
-          onSecondary: Colors.black87,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1A1A28),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        cardTheme: const CardThemeData(
-          color: Color(0xFF1E1E2E),
-          elevation: 4,
-        ),
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Colors.amber,
-          foregroundColor: Colors.black,
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.build(),
     );
   }
 }
