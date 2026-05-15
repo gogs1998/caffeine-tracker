@@ -118,7 +118,7 @@ class CurrentLevelCard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Text('0',
                         style: TextStyle(
                             color: AppColors.textDisabled, fontSize: 10)),

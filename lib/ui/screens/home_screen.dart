@@ -188,10 +188,10 @@ class _GraphCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: surfaceCard(),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(18, 16, 18, 4),
             child: Row(
               children: [
@@ -210,7 +210,7 @@ class _GraphCard extends StatelessWidget {
               ],
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(8, 0, 4, 8),
             child: DecayGraph(),
           ),
