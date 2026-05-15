@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../core/providers.dart';
 import '../widgets/current_level_card.dart';
 import '../widgets/decay_graph.dart';
+import '../widgets/voice_input_button.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -187,11 +188,23 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.amber,
-        foregroundColor: Colors.black,
-        onPressed: () => context.push('/log'),
-        child: const Text('☕', style: TextStyle(fontSize: 22)),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // ── Voice FAB ──────────────────────────────────────────────────────
+          const VoiceInputButton(),
+          const SizedBox(height: 12),
+          // ── Manual log FAB ─────────────────────────────────────────────────
+          FloatingActionButton(
+            heroTag: 'manualFab',
+            backgroundColor: Colors.amber,
+            foregroundColor: Colors.black,
+            onPressed: () => context.push('/log'),
+            tooltip: 'Log drink manually',
+            child: const Text('☕', style: TextStyle(fontSize: 22)),
+          ),
+        ],
       ),
     );
   }

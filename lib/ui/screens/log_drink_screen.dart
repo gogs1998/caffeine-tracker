@@ -7,7 +7,10 @@ import '../../data/repositories/caffeine_repository.dart';
 import 'preset_picker_screen.dart';
 
 class LogDrinkScreen extends StatefulWidget {
-  const LogDrinkScreen({super.key});
+  final String? initialName;
+  final double? initialMg;
+
+  const LogDrinkScreen({super.key, this.initialName, this.initialMg});
 
   @override
   State<LogDrinkScreen> createState() => _LogDrinkScreenState();
@@ -22,6 +25,16 @@ class _LogDrinkScreenState extends State<LogDrinkScreen> {
   DrinkPreset? _selectedPreset;
   DateTime _consumedAt = DateTime.now();
   bool _saving = false;
+  String? _voiceName; // pre-filled from voice parser
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialMg != null) {
+      _customAmountController.text = widget.initialMg!.toInt().toString();
+    }
+    _voiceName = widget.initialName;
+  }
 
   Future<void> _pickPreset() async {
     final preset = await Navigator.push<DrinkPreset>(
@@ -74,6 +87,7 @@ class _LogDrinkScreenState extends State<LogDrinkScreen> {
         : _selectedPreset?.mgAmount ?? 0;
 
     final drinkName = _selectedPreset?.name ??
+        _voiceName ??
         (_customAmountController.text.isNotEmpty ? 'Custom Drink' : 'Unknown');
 
     final entry = CaffeineEntry(
