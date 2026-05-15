@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../core/providers.dart';
 import '../widgets/current_level_card.dart';
 import '../widgets/decay_graph.dart';
+import '../widgets/heart_rate_badge.dart';
 import '../widgets/voice_input_button.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -44,12 +45,17 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(entriesProvider);
           ref.invalidate(settingsProvider);
           ref.invalidate(currentLevelProvider);
+          ref.invalidate(heartRateProvider);
         },
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             // ── Current level card ───────────────────────────────────────
             const CurrentLevelCard(),
+            const SizedBox(height: 12),
+
+            // ── Heart rate badge ──────────────────────────────────────────
+            const HeartRateBadge(),
             const SizedBox(height: 16),
 
             // ── Decay graph ───────────────────────────────────────────────

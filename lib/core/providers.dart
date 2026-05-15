@@ -5,12 +5,17 @@ import '../data/models/caffeine_entry.dart';
 import '../data/models/user_settings.dart';
 import '../data/repositories/caffeine_repository.dart';
 import '../data/repositories/settings_repository.dart';
+import '../data/repositories/health_repository.dart';
 import 'caffeine_calculator.dart';
+import 'heart_rate_sensitivity.dart';
 
 // ── Repositories ──────────────────────────────────────────────────────────────
 
 final caffeineRepositoryProvider =
     Provider<CaffeineRepository>((ref) => CaffeineRepository());
+
+final healthRepositoryProvider =
+    Provider<HealthRepository>((ref) => HealthRepository());
 
 /// Async provider that creates a [SettingsRepository] once SharedPreferences
 /// is available.
@@ -33,14 +38,16 @@ final settingsProvider = FutureProvider<UserSettings>((ref) async {
 
 // ── Calculator ────────────────────────────────────────────────────────────────
 
-/// Returns a [CaffeineCalculator] built from the current [UserSettings].
+/// Returns a [CaffeineCalculator] built from the current [UserSettings]
+/// combined with the live heart-rate sensitivity multiplier.
 /// Falls back to defaults while settings are loading / on error.
 final calculatorProvider = Provider<CaffeineCalculator>((ref) {
   final settingsAsync = ref.watch(settingsProvider);
+  final effectiveSensitivity = ref.watch(effectiveSensitivityProvider);
   return settingsAsync.when(
     data: (s) => CaffeineCalculator(
       halfLifeHours: s.halfLifeHours,
-      sensitivityMultiplier: s.sensitivityMultiplier,
+      sensitivityMultiplier: effectiveSensitivity,
     ),
     loading: () => const CaffeineCalculator(),
     error: (_, __) => const CaffeineCalculator(),
@@ -64,3 +71,54 @@ final currentLevelProvider = StreamProvider<double>((ref) async* {
     yield await compute();
   }
 });
+
+// ── Heart rate (polls every 5 minutes) ───────────────────────────────────────
+
+/// Streams the most recent average heart rate (bpm) over the last 30 minutes,
+/// refreshed every 5 minutes. Emits null if unavailable / permission denied.
+final heartRateProvider = StreamProvider<double?>((ref) async* {
+  final repo = ref.watch(healthRepositoryProvider);
+
+  Future<double?> fetch() async {
+    final available = await repo.isAvailable();
+    if (!available) return null;
+    final granted = await repo.requestPermissions();
+    if (!granted) return null;
+    return repo.getRecentHeartRate();
+  }
+
+  yield await fetch();
+
+  final ticker = Stream<void>.periodic(const Duration(minutes: 5));
+  await for (final _ in ticker) {
+    yield await fetch();
+  }
+});
+
+// ── Effective sensitivity (GLP-1 × heart-rate multiplier) ────────────────────
+
+/// Combines the user's base [sensitivityMultiplier] (from settings, which may
+/// already reflect GLP-1 mode) with the live heart-rate multiplier so that
+/// an elevated heart rate further increases caffeine sensitivity.
+final effectiveSensitivityProvider = Provider<double>((ref) {
+  // ignore: no_leading_underscores_for_local_identifiers
+  const hrs = HeartRateSensitivity();
+
+  final settingsAsync = ref.watch(settingsProvider);
+  final heartRateAsync = ref.watch(heartRateProvider);
+
+  final baseSensitivity = settingsAsync.maybeWhen(
+    data: (s) => s.sensitivityMultiplier,
+    orElse: () => 1.0,
+  );
+
+  final heartRate = heartRateAsync.maybeWhen(
+    data: (hr) => hr,
+    orElse: () => null,
+  );
+
+  final hrMultiplier = hrs.computeMultiplier(heartRate);
+
+  return baseSensitivity * hrMultiplier;
+});
+
