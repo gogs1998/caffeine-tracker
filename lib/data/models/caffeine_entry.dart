@@ -4,6 +4,7 @@ class CaffeineEntry {
   final double mgAmount;
   final DateTime consumedAt;
   final String? notes;
+  final String? presetId;
 
   const CaffeineEntry({
     required this.id,
@@ -11,6 +12,7 @@ class CaffeineEntry {
     required this.mgAmount,
     required this.consumedAt,
     this.notes,
+    this.presetId,
   });
 
   Map<String, dynamic> toMap() => {
@@ -19,6 +21,7 @@ class CaffeineEntry {
         'mg_amount': mgAmount,
         'consumed_at': consumedAt.toIso8601String(),
         'notes': notes,
+        'preset_id': presetId,
       };
 
   factory CaffeineEntry.fromMap(Map<String, dynamic> map) => CaffeineEntry(
@@ -27,6 +30,7 @@ class CaffeineEntry {
         mgAmount: (map['mg_amount'] as num).toDouble(),
         consumedAt: DateTime.parse(map['consumed_at'] as String),
         notes: map['notes'] as String?,
+        presetId: map['preset_id'] as String?,
       );
 
   @override

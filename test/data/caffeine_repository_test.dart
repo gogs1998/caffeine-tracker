@@ -35,7 +35,8 @@ void main() {
               ${DatabaseHelper.columnDrinkName} TEXT NOT NULL,
               ${DatabaseHelper.columnMgAmount} REAL NOT NULL,
               ${DatabaseHelper.columnConsumedAt} TEXT NOT NULL,
-              ${DatabaseHelper.columnNotes} TEXT
+              ${DatabaseHelper.columnNotes} TEXT,
+              ${DatabaseHelper.columnPresetId} TEXT
             )
           ''');
         },

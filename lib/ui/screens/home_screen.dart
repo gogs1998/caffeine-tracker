@@ -57,14 +57,14 @@ class HomeScreen extends ConsumerWidget {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
               elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 12, 4, 8),
+              child: const Padding(
+                padding: EdgeInsets.fromLTRB(8, 12, 4, 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 12, bottom: 4),
-                      child: const Text(
+                      padding: EdgeInsets.only(left: 12, bottom: 4),
+                      child: Text(
                         'Caffeine decay (24 h)',
                         style: TextStyle(
                             color: Colors.white70,
@@ -72,7 +72,7 @@ class HomeScreen extends ConsumerWidget {
                             fontWeight: FontWeight.w500),
                       ),
                     ),
-                    const DecayGraph(),
+                    DecayGraph(),
                   ],
                 ),
               ),
