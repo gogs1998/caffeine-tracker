@@ -3,35 +3,58 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../core/providers.dart';
+import '../../data/models/user_settings.dart';
 import '../widgets/current_level_card.dart';
 import '../widgets/decay_graph.dart';
 import '../widgets/heart_rate_badge.dart';
 import '../widgets/voice_input_button.dart';
 import '../widgets/advice_card.dart';
+import '../widgets/streak_badge.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
+  String _greeting(UserSettings s, double caffeineMg) {
+    final hour = DateTime.now().hour;
+    final name = s.name;
+    final threshold = s.safeThresholdMg;
+    if (hour < 12) {
+      return caffeineMg > threshold
+          ? 'Steady there, $name ☕'
+          : 'Good morning, $name ☕';
+    } else if (hour < 18) {
+      return caffeineMg > threshold * 2
+          ? 'Easy on the coffee, $name 😬'
+          : 'Good afternoon, $name ☕';
+    } else {
+      return caffeineMg > threshold
+          ? 'Time to switch to decaf, $name 🌙'
+          : 'Good evening, $name 🌙';
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final entriesAsync = ref.watch(entriesProvider);
+    final settingsAsync = ref.watch(settingsProvider);
+    final currentLevelAsync = ref.watch(currentLevelProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF12121A),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A1A28),
-        title: const Row(
-          children: [
-            Text('☕', style: TextStyle(fontSize: 20)),
-            SizedBox(width: 8),
-            Text(
-              'Caffeine Tracker',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18),
-            ),
-          ],
+        title: settingsAsync.when(
+          loading: () => const Text('Caffeine Tracker',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18)),
+          error: (_, __) => const Text('Caffeine Tracker',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18)),
+          data: (settings) {
+            final mg = currentLevelAsync.maybeWhen(data: (v) => v, orElse: () => 0.0);
+            return Text(
+              _greeting(settings, mg),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 17),
+            );
+          },
         ),
         actions: [
           IconButton(
@@ -61,6 +84,10 @@ class HomeScreen extends ConsumerWidget {
 
             // ── Advice card ───────────────────────────────────────────────
             const AdviceCard(),
+            const SizedBox(height: 16),
+
+            // ── Streak badge ──────────────────────────────────────────────────
+            const StreakBadge(),
             const SizedBox(height: 16),
 
             // ── Decay graph ───────────────────────────────────────────────

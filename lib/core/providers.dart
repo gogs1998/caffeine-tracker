@@ -9,6 +9,7 @@ import '../data/repositories/health_repository.dart';
 import 'caffeine_calculator.dart';
 import 'heart_rate_sensitivity.dart';
 import 'advice_engine.dart';
+import 'streak_calculator.dart';
 
 // ── Repositories ──────────────────────────────────────────────────────────────
 
@@ -167,5 +168,18 @@ final adviceProvider = FutureProvider<CaffeineAdvice>((ref) async {
   );
 
   return const AdviceEngine().assess(state);
+});
+// ── Pro / paywall ─────────────────────────────────────────────────────────────
+
+/// isPro defaults to true during dev (nothing gated in production yet).
+final isProProvider = StateProvider<bool>((ref) => true);
+
+// ── Streak ────────────────────────────────────────────────────────────────────
+
+final streakProvider = FutureProvider<StreakData>((ref) async {
+  final entries = await ref.watch(entriesProvider.future);
+  final settings = await ref.watch(settingsProvider.future);
+  final calc = StreakCalculator(safeThresholdMg: settings.safeThresholdMg);
+  return calc.calculate(entries);
 });
 

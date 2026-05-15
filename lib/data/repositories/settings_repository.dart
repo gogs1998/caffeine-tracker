@@ -17,6 +17,9 @@ class SettingsRepository {
   static const _keyGlp1Medication = 'glp1_medication';
   static const _keySensitivityMultiplier = 'sensitivity_multiplier';
   static const _keySafeThresholdMg = 'safe_threshold_mg';
+  static const _keyName = 'user_name';
+  static const _keyNotifySleepSafe = 'notif_sleep_safe';
+  static const _keyNotifyDailySummary = 'notif_daily_summary';
 
   final SharedPreferences _prefs;
 
@@ -32,6 +35,9 @@ class SettingsRepository {
       sensitivityMultiplier:
           _prefs.getDouble(_keySensitivityMultiplier) ?? 1.0,
       safeThresholdMg: _prefs.getDouble(_keySafeThresholdMg) ?? 50.0,
+      name: _prefs.getString(_keyName) ?? 'Gordon',
+      notifySleepSafe: _prefs.getBool(_keyNotifySleepSafe) ?? false,
+      notifyDailySummary: _prefs.getBool(_keyNotifyDailySummary) ?? false,
     );
   }
 
@@ -48,6 +54,9 @@ class SettingsRepository {
     await _prefs.setDouble(
         _keySensitivityMultiplier, settings.sensitivityMultiplier);
     await _prefs.setDouble(_keySafeThresholdMg, settings.safeThresholdMg);
+    await _prefs.setString(_keyName, settings.name);
+    await _prefs.setBool(_keyNotifySleepSafe, settings.notifySleepSafe);
+    await _prefs.setBool(_keyNotifyDailySummary, settings.notifyDailySummary);
   }
 
   Future<void> clear() async {

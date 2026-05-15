@@ -6,6 +6,9 @@ class UserSettings {
   final String? glp1Medication;
   final double sensitivityMultiplier;
   final double safeThresholdMg;
+  final String name;
+  final bool notifySleepSafe;
+  final bool notifyDailySummary;
 
   const UserSettings({
     this.halfLifeHours = 5.0,
@@ -15,6 +18,9 @@ class UserSettings {
     this.glp1Medication,
     this.sensitivityMultiplier = 1.0,
     this.safeThresholdMg = 50.0,
+    this.name = 'Gordon',
+    this.notifySleepSafe = false,
+    this.notifyDailySummary = false,
   });
 
   UserSettings copyWith({
@@ -25,6 +31,9 @@ class UserSettings {
     String? glp1Medication,
     double? sensitivityMultiplier,
     double? safeThresholdMg,
+    String? name,
+    bool? notifySleepSafe,
+    bool? notifyDailySummary,
   }) {
     return UserSettings(
       halfLifeHours: halfLifeHours ?? this.halfLifeHours,
@@ -35,6 +44,9 @@ class UserSettings {
       sensitivityMultiplier:
           sensitivityMultiplier ?? this.sensitivityMultiplier,
       safeThresholdMg: safeThresholdMg ?? this.safeThresholdMg,
+      name: name ?? this.name,
+      notifySleepSafe: notifySleepSafe ?? this.notifySleepSafe,
+      notifyDailySummary: notifyDailySummary ?? this.notifyDailySummary,
     );
   }
 
@@ -49,7 +61,10 @@ class UserSettings {
           glp1Mode == other.glp1Mode &&
           glp1Medication == other.glp1Medication &&
           sensitivityMultiplier == other.sensitivityMultiplier &&
-          safeThresholdMg == other.safeThresholdMg;
+          safeThresholdMg == other.safeThresholdMg &&
+          name == other.name &&
+          notifySleepSafe == other.notifySleepSafe &&
+          notifyDailySummary == other.notifyDailySummary;
 
   @override
   int get hashCode => Object.hash(
@@ -60,6 +75,9 @@ class UserSettings {
         glp1Medication,
         sensitivityMultiplier,
         safeThresholdMg,
+        name,
+        notifySleepSafe,
+        notifyDailySummary,
       );
 
   @override
@@ -70,5 +88,6 @@ class UserSettings {
       'glp1Mode: $glp1Mode, '
       'glp1Medication: $glp1Medication, '
       'sensitivityMultiplier: $sensitivityMultiplier, '
-      'safeThresholdMg: $safeThresholdMg)';
+      'safeThresholdMg: $safeThresholdMg, '
+      'name: $name)';
 }
