@@ -1,9 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:caffeine_tracker/main.dart';
 
 void main() {
-  testWidgets('App smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const CaffeineTrackerApp());
+  testWidgets('App smoke test — wraps in ProviderScope', (WidgetTester tester) async {
+    await tester.pumpWidget(const ProviderScope(child: CaffeineTrackerApp()));
+    // Allow async providers to start loading
+    await tester.pump();
+    // AppBar title should be present
     expect(find.text('Caffeine Tracker'), findsOneWidget);
   });
 }
