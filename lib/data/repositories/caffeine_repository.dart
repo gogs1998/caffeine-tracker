@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import '../db/database_helper.dart';
 import '../models/caffeine_entry.dart';
@@ -8,10 +9,12 @@ class CaffeineRepository {
   CaffeineRepository({DatabaseHelper? dbHelper})
       : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
-  Future<Database> get _db => _dbHelper.database;
-
   Future<void> insert(CaffeineEntry entry) async {
-    final db = await _db;
+    if (kIsWeb) {
+      await _dbHelper.insertEntry(entry.toMap());
+      return;
+    }
+    final db = (await _dbHelper.database)!;
     await db.insert(
       DatabaseHelper.tableEntries,
       entry.toMap(),
@@ -20,7 +23,12 @@ class CaffeineRepository {
   }
 
   Future<List<CaffeineEntry>> getAll() async {
-    final db = await _db;
+    if (kIsWeb) {
+      final maps = await _dbHelper.getAllEntries(
+          orderBy: '${DatabaseHelper.columnConsumedAt} ASC');
+      return maps.map(CaffeineEntry.fromMap).toList();
+    }
+    final db = (await _dbHelper.database)!;
     final maps = await db.query(
       DatabaseHelper.tableEntries,
       orderBy: '${DatabaseHelper.columnConsumedAt} ASC',
@@ -30,7 +38,16 @@ class CaffeineRepository {
 
   Future<List<CaffeineEntry>> getByDateRange(
       DateTime from, DateTime to) async {
-    final db = await _db;
+    if (kIsWeb) {
+      final maps = await _dbHelper.getAllEntries(
+        where:
+            '${DatabaseHelper.columnConsumedAt} >= ? AND ${DatabaseHelper.columnConsumedAt} <= ?',
+        whereArgs: [from.toIso8601String(), to.toIso8601String()],
+        orderBy: '${DatabaseHelper.columnConsumedAt} ASC',
+      );
+      return maps.map(CaffeineEntry.fromMap).toList();
+    }
+    final db = (await _dbHelper.database)!;
     final maps = await db.query(
       DatabaseHelper.tableEntries,
       where:
@@ -42,7 +59,11 @@ class CaffeineRepository {
   }
 
   Future<void> delete(String id) async {
-    final db = await _db;
+    if (kIsWeb) {
+      await _dbHelper.deleteEntry(id);
+      return;
+    }
+    final db = (await _dbHelper.database)!;
     await db.delete(
       DatabaseHelper.tableEntries,
       where: '${DatabaseHelper.columnId} = ?',
@@ -51,7 +72,11 @@ class CaffeineRepository {
   }
 
   Future<void> deleteAll() async {
-    final db = await _db;
+    if (kIsWeb) {
+      await _dbHelper.deleteAllEntries();
+      return;
+    }
+    final db = (await _dbHelper.database)!;
     await db.delete(DatabaseHelper.tableEntries);
   }
 }
