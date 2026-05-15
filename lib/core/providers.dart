@@ -8,6 +8,7 @@ import '../data/repositories/settings_repository.dart';
 import '../data/repositories/health_repository.dart';
 import 'caffeine_calculator.dart';
 import 'heart_rate_sensitivity.dart';
+import 'advice_engine.dart';
 
 // ── Repositories ──────────────────────────────────────────────────────────────
 
@@ -120,5 +121,51 @@ final effectiveSensitivityProvider = Provider<double>((ref) {
   final hrMultiplier = hrs.computeMultiplier(heartRate);
 
   return baseSensitivity * hrMultiplier;
+});
+
+// ── Advice provider ───────────────────────────────────────────────────────────
+
+/// Builds a [CaffeineState] from live providers and runs [AdviceEngine.assess].
+/// Returns an [AsyncValue<CaffeineAdvice>] so the UI can handle loading/error.
+final adviceProvider = FutureProvider<CaffeineAdvice>((ref) async {
+  final entries = await ref.watch(entriesProvider.future);
+  final settings = await ref.watch(settingsProvider.future);
+  final heartRate = ref.watch(heartRateProvider).asData?.value;
+
+  final calc = ref.watch(calculatorProvider);
+  final now = DateTime.now();
+
+  final currentMg = calc.currentLevel(entries, now);
+
+  // Peak today: max level at any logged drink time today
+  final todayEntries = entries.where((e) {
+    return e.consumedAt.year == now.year &&
+        e.consumedAt.month == now.month &&
+        e.consumedAt.day == now.day;
+  }).toList();
+  double peakMg = currentMg;
+  for (final e in todayEntries) {
+    final levelAt = calc.levelAt(entries, e.consumedAt);
+    if (levelAt > peakMg) peakMg = levelAt;
+  }
+
+  final bedtime = DateTime(
+      now.year, now.month, now.day, settings.bedtimeHour, settings.bedtimeMinute);
+  final safeToSleepAt = calc.safeToSleepTime(entries, now, settings.safeThresholdMg);
+
+  final state = CaffeineState(
+    currentMg: currentMg,
+    peakMg: peakMg,
+    heartRateBpm: heartRate,
+    safeToSleepAt: safeToSleepAt,
+    bedtime: bedtime,
+    glp1Mode: settings.glp1Mode,
+    glp1Medication: settings.glp1Medication,
+    halfLifeHours: settings.halfLifeHours,
+    totalDrinksToday: todayEntries.length,
+    now: now,
+  );
+
+  return const AdviceEngine().assess(state);
 });
 

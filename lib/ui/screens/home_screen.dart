@@ -7,6 +7,7 @@ import '../widgets/current_level_card.dart';
 import '../widgets/decay_graph.dart';
 import '../widgets/heart_rate_badge.dart';
 import '../widgets/voice_input_button.dart';
+import '../widgets/advice_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -56,6 +57,10 @@ class HomeScreen extends ConsumerWidget {
 
             // ── Heart rate badge ──────────────────────────────────────────
             const HeartRateBadge(),
+            const SizedBox(height: 12),
+
+            // ── Advice card ───────────────────────────────────────────────
+            const AdviceCard(),
             const SizedBox(height: 16),
 
             // ── Decay graph ───────────────────────────────────────────────

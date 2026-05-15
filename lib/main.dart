@@ -5,6 +5,7 @@ import 'ui/screens/home_screen.dart';
 import 'ui/screens/log_drink_screen.dart';
 import 'ui/screens/settings_screen.dart';
 import 'ui/screens/scanner_screen.dart';
+import 'ui/screens/advice_screen.dart';
 
 final _router = GoRouter(
   routes: [
@@ -23,6 +24,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/scan',
       builder: (_, __) => const ScannerScreen(),
+    ),
+    GoRoute(
+      path: '/advice',
+      builder: (_, __) => const AdviceScreen(),
     ),
   ],
 );
