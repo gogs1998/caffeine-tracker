@@ -210,6 +210,16 @@ class HomeScreen extends ConsumerWidget {
             tooltip: 'Log drink manually',
             child: const Text('☕', style: TextStyle(fontSize: 22)),
           ),
+          const SizedBox(height: 12),
+          // ── Barcode scanner FAB ────────────────────────────────────────────
+          FloatingActionButton(
+            heroTag: 'scanFab',
+            backgroundColor: Colors.orange,
+            foregroundColor: Colors.black,
+            onPressed: () => context.push('/scan'),
+            tooltip: 'Scan barcode',
+            child: const Icon(Icons.qr_code_scanner),
+          ),
         ],
       ),
     );

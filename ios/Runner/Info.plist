@@ -70,5 +70,7 @@
 	<string>Caffeine Tracker reads your heart rate to personalise caffeine sensitivity estimates.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Caffeine Tracker needs HealthKit access to read heart rate data.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Caffeine Tracker uses the camera to scan barcodes and product labels.</string>
 </dict>
 </plist>
