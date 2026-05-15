@@ -203,9 +203,9 @@ class _DrinkTile extends StatelessWidget {
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: mgColor.withValues(alpha: 0.15),
+          color: mgColor.withOpacity(0.15),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: mgColor.withValues(alpha: 0.6)),
+          border: Border.all(color: mgColor.withOpacity(0.6)),
         ),
         child: Text(
           '${preset.mgAmount.toInt()} mg',
