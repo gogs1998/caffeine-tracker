@@ -8,7 +8,6 @@ import 'dart:io';
 import '../../core/providers.dart';
 import '../../core/data_exporter.dart';
 import '../../data/models/user_settings.dart';
-import '../../data/repositories/caffeine_repository.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ct_widgets.dart';
 

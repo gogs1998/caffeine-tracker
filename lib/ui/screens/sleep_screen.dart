@@ -25,7 +25,7 @@ class SleepScreen extends ConsumerWidget {
     );
 
     final entries = entriesAsync.maybeWhen(
-      data: (e) => e as List<CaffeineEntry>,
+      data: (e) => e,
       orElse: () => <CaffeineEntry>[],
     );
 

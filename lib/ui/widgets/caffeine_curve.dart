@@ -98,9 +98,9 @@ class _CurvePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Time range: 6:00 AM to 11:00 PM of today
     final today = DateTime(now.year, now.month, now.day);
-    final startH = 6.0;
-    final endH = 23.0;
-    final rangeH = endH - startH;
+    const startH = 6.0;
+    const endH = 23.0;
+    const rangeH = endH - startH;
 
     final calc = CaffeineCalculator(halfLifeHours: halfLifeHours);
 
@@ -120,7 +120,7 @@ class _CurvePainter extends CustomPainter {
     if (maxLevel < limitMg * 1.1) maxLevel = limitMg * 1.1;
 
     final chartBottom = size.height - 20; // leave room for axis labels
-    final chartTop = 8.0;
+    const chartTop = 8.0;
     final chartHeight = chartBottom - chartTop;
 
     double toX(double h) => (h - startH) / rangeH * size.width;

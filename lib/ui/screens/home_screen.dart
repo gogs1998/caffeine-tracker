@@ -345,10 +345,10 @@ class _HomeBody extends StatelessWidget {
 
                 // Drink rows
                 if (today.isEmpty)
-                  CTCard(
-                    padding: const EdgeInsets.symmetric(
+                  const CTCard(
+                    padding: EdgeInsets.symmetric(
                         vertical: 32, horizontal: 20),
-                    child: const Center(
+                    child: Center(
                       child: Column(
                         children: [
                           Icon(Icons.coffee_outlined,
@@ -550,7 +550,7 @@ class _DrinkRow extends StatelessWidget {
               ),
             ),
             Text(
-              '${entry.mgAmount.toStringAsFixed(0)}',
+              entry.mgAmount.toStringAsFixed(0),
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,

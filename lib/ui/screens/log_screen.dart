@@ -36,7 +36,7 @@ const _presets = {
 class _LogScreenState extends ConsumerState<LogScreen> {
   String _category = 'espresso';
   int _sizeIndex = 1;
-  DateTime _logTime = DateTime.now();
+  final DateTime _logTime = DateTime.now();
 
   ({String name, double mgPerOz, double defaultOz, List<double> sizes, List<String> sizeLabels}) get _preset =>
       _presets[_category]!;

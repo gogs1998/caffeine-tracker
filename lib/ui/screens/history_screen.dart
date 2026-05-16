@@ -31,7 +31,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       orElse: () => const UserSettings(),
     );
     final entries = entriesAsync.maybeWhen(
-      data: (e) => e as List<CaffeineEntry>,
+      data: (e) => e,
       orElse: () => <CaffeineEntry>[],
     );
 
