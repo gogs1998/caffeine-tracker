@@ -1,152 +1,153 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 abstract class AppColors {
-  static const bg = Color(0xFF12121A);
-  static const surface = Color(0xFF1E1E2E);
-  static const surfaceHigh = Color(0xFF252542);
-  static const surfaceLow = Color(0xFF181826);
+  // Surfaces
+  static const bg = Color(0xFFF2EBDF);
+  static const bg2 = Color(0xFFEBE3D2);
+  static const card = Color(0xFFFBF7EE);
+  static const cardWarm = Color(0xFFF7EFDD);
+  static const line = Color(0x1A1A1410);
+  static const line2 = Color(0x2E1A1410);
 
-  static const amber = Color(0xFFFFC107);
-  static const amberSoft = Color(0xFFFFD54F);
-  static const orange = Color(0xFFFF9800);
+  // Ink
+  static const ink = Color(0xFF1A1410);
+  static const ink2 = Color(0xFF3A2E25);
+  static const muted = Color(0xFF75665A);
+  static const muted2 = Color(0xFFA0917F);
 
-  static const safe = Color(0xFF4ADE80);
-  static const caution = Color(0xFFFBBF24);
-  static const danger = Color(0xFFF87171);
-  static const purple = Color(0xFFA78BFA);
+  // Brand / status
+  static const crema = Color(0xFFC77D3F);
+  static const cremaDk = Color(0xFF9F5E27);
+  static const cremaTn = Color(0xFFF2DDC1);
+  static const tea = Color(0xFF5F7A3F);
+  static const teaTn = Color(0xFFDCE3CC);
+  static const burnt = Color(0xFFB23A28);
+  static const burntTn = Color(0xFFF2D1C9);
+  static const night = Color(0xFF2B3148);
+  static const night2 = Color(0xFF424A6B);
 
-  // Glass layer — white with low alpha
-  static const glassLayer = Color(0x0DFFFFFF); // ~5%
-  static const glassBorder = Color(0x1AFFFFFF); // ~10%
-  static const glassBorderStrong = Color(0x33FFFFFF); // ~20%
+  // Legacy compat aliases
+  static const surface = card;
+  static const amber = crema;
+  static const safe = tea;
+  static const danger = burnt;
+  static const caution = crema;
+  static const textPrimary = ink;
+  static const textSecondary = muted;
+  static const textTertiary = muted2;
+  static const textDisabled = Color(0xFFC0B8AD);
+  static const glassBorder = line;
+  static const glassLayer = Color(0x0A1A1410);
+  // Extra legacy aliases
+  static const orange = crema;
+  static const purple = night;
+}
 
-  // Text
-  static const textPrimary = Colors.white;
-  static const textSecondary = Color(0xB3FFFFFF); // 70%
-  static const textTertiary = Color(0x73FFFFFF); // 45%
-  static const textDisabled = Color(0x40FFFFFF); // 25%
+abstract class AppFonts {
+  static const display = 'Newsreader';
+  static const mono = 'JetBrains Mono';
 }
 
 class AppTheme {
-  static ThemeData build() {
-    return ThemeData(
-      brightness: Brightness.dark,
+  static ThemeData light() {
+    final base = ThemeData.light(useMaterial3: true);
+    return base.copyWith(
       scaffoldBackgroundColor: AppColors.bg,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.amber,
-        secondary: AppColors.orange,
-        surface: AppColors.surface,
-        onPrimary: Colors.black,
-        onSecondary: Colors.black,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.crema,
+        secondary: AppColors.tea,
+        surface: AppColors.card,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: AppColors.ink,
+        error: AppColors.burnt,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.ink,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.4,
-        ),
       ),
       cardTheme: const CardTheme(
-        color: AppColors.surface,
+        color: AppColors.card,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: BorderRadius.all(Radius.circular(18)),
         ),
+        margin: EdgeInsets.zero,
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.amber,
-        foregroundColor: Colors.black,
-        elevation: 12,
+      dividerTheme: const DividerThemeData(
+        color: AppColors.line,
+        thickness: 0.5,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: AppColors.card,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.glassBorder),
+          borderSide: const BorderSide(color: AppColors.line),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.glassBorder),
+          borderSide: const BorderSide(color: AppColors.line),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.amber, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.crema, width: 1.5),
         ),
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
-        hintStyle: const TextStyle(color: AppColors.textDisabled),
+        hintStyle: const TextStyle(color: AppColors.muted2),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.amber,
-          foregroundColor: Colors.black,
+          backgroundColor: AppColors.crema,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 15,
-            letterSpacing: 0.2,
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: AppColors.amber),
+        style: TextButton.styleFrom(foregroundColor: AppColors.crema),
       ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: AppColors.glassBorder),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
+      textTheme: GoogleFonts.interTextTheme(base.textTheme).copyWith(
+        bodyLarge: const TextStyle(color: AppColors.ink),
+        bodyMedium: const TextStyle(color: AppColors.ink),
       ),
-      chipTheme: ChipThemeData(
-        backgroundColor: AppColors.surface,
-        selectedColor: AppColors.amber.withAlpha(40),
-        side: const BorderSide(color: AppColors.glassBorder),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        labelStyle: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-        ),
-        showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-      ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.glassBorder,
-        thickness: 1,
-      ),
-      useMaterial3: true,
     );
   }
+
+  // Legacy alias used by main.dart
+  static ThemeData build() => light();
 }
 
-// Reusable card decoration
+// Reusable card decoration (kept for legacy widget compat)
 BoxDecoration surfaceCard({
   Color? color,
-  double radius = 20,
+  double radius = 18,
   Color? borderColor,
   List<BoxShadow>? shadows,
 }) {
   return BoxDecoration(
-    color: color ?? AppColors.surface,
+    color: color ?? AppColors.card,
     borderRadius: BorderRadius.circular(radius),
-    border: Border.all(color: borderColor ?? AppColors.glassBorder),
+    border: Border.all(
+      color: borderColor ?? const Color(0x0D1A1410),
+      width: 0.5,
+    ),
     boxShadow: shadows ??
         [
-          BoxShadow(
-            color: Colors.black.withAlpha(60),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
+          const BoxShadow(
+            color: Color(0x0A1A1410),
+            blurRadius: 24,
+            offset: Offset(0, 6),
+          ),
+          const BoxShadow(
+            color: Color(0x041A1410),
+            blurRadius: 1,
+            offset: Offset(0, 1),
           ),
         ],
   );

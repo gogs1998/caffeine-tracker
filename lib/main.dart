@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'data/db/database_helper.dart';
 import 'ui/screens/home_screen.dart';
-import 'ui/screens/log_drink_screen.dart';
+import 'ui/screens/log_screen.dart';
 import 'ui/screens/settings_screen.dart';
+import 'ui/screens/sleep_screen.dart';
+import 'ui/screens/library_screen.dart';
+import 'ui/screens/history_screen.dart';
 import 'ui/screens/scanner_screen.dart';
 import 'ui/screens/advice_screen.dart';
 import 'ui/screens/paywall_screen.dart';
@@ -19,7 +22,19 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/log',
-      builder: (_, __) => const LogDrinkScreen(),
+      builder: (_, __) => const LogScreen(),
+    ),
+    GoRoute(
+      path: '/sleep',
+      builder: (_, __) => const SleepScreen(),
+    ),
+    GoRoute(
+      path: '/history',
+      builder: (_, __) => const HistoryScreen(),
+    ),
+    GoRoute(
+      path: '/library',
+      builder: (_, __) => const LibraryScreen(),
     ),
     GoRoute(
       path: '/settings',

@@ -30,3 +30,4 @@ GeneratedPluginRegistrant.java
 # Misc
 *.log
 pubspec.lock
+.claude/
