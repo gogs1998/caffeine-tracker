@@ -138,6 +138,29 @@ class _HomeBody extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
+                // Search button
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () => context.push('/search'),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.card,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.ink.withAlpha(10),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.search,
+                        size: 18, color: AppColors.ink),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 // Bell button
                 Container(
                   width: 40,

@@ -10,6 +10,7 @@ import '../../core/data_exporter.dart';
 import '../../data/models/user_settings.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ct_widgets.dart';
+import '../../core/providers/auth_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -293,6 +294,84 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   CTCard(
                     child: Column(
                       children: [
+                        Consumer(
+                          builder: (context, ref, _) {
+                            final userAsync = ref.watch(currentUserProvider);
+                            return userAsync.when(
+                              loading: () => const SizedBox.shrink(),
+                              error: (_, __) => const SizedBox.shrink(),
+                              data: (user) {
+                                if (user != null) {
+                                  return Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.account_circle_outlined, size: 20, color: AppColors.muted),
+                                            const SizedBox(width: 14),
+                                            Expanded(
+                                              child: Text(
+                                                user.email ?? '',
+                                                style: GoogleFonts.dmSans(
+                                                  fontSize: 14,
+                                                  color: AppColors.muted,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Divider(height: 1, thickness: 0.5, color: AppColors.line, indent: 54, endIndent: 18),
+                                      _AccountRow(
+                                        icon: Icons.logout,
+                                        label: 'Sign Out',
+                                        onTap: () async {
+                                          await ref.read(authRepositoryProvider).signOut();
+                                        },
+                                      ),
+                                      const Divider(height: 1, thickness: 0.5, color: AppColors.line, indent: 54, endIndent: 18),
+                                    ],
+                                  );
+                                } else {
+                                  return Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(18, 16, 18, 4),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.cloud_outlined, size: 20, color: AppColors.muted),
+                                            const SizedBox(width: 14),
+                                            Expanded(
+                                              child: Text(
+                                                'Sign in to sync across devices',
+                                                style: GoogleFonts.dmSans(
+                                                  fontSize: 14,
+                                                  color: AppColors.muted,
+                                                ),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => context.push('/auth'),
+                                              child: Text(
+                                                'Sign In',
+                                                style: GoogleFonts.dmSans(
+                                                  color: AppColors.crema,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Divider(height: 1, thickness: 0.5, color: AppColors.line, indent: 54, endIndent: 18),
+                                    ],
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        ),
                         _AccountRow(
                           icon: Icons.ios_share_outlined,
                           label: 'Export data',
