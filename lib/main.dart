@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/firebase_options.dart';
-import 'data/db/database_helper.dart';
 import 'ui/screens/home_screen.dart';
 import 'ui/screens/log_screen.dart';
 import 'ui/screens/settings_screen.dart';
