@@ -69,7 +69,7 @@ final _router = GoRouter(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
-    // await DatabaseHelper.seedWebData(); // disabled for clean web demo
+    await DatabaseHelper.instance.deleteAllEntries();
   }
   try {
     await Firebase.initializeApp(
