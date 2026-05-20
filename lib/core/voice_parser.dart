@@ -38,6 +38,12 @@ class VoiceParser {
     _DrinkRule(r'\bfilter\s*coffee\b', 'Filter Coffee', 140),
     _DrinkRule(r'\binstant\s*coffee\b', 'Instant Coffee', 100),
     _DrinkRule(r'\bcoffee\b', 'Filter Coffee', 140),
+    // ── Nespresso & generic coffee ─────────────────────────────────────────
+    _DrinkRule(r'\bnespresso\b', 'Nespresso Espresso, 60),
+    _DrinkRule(r'\bnespresso\s*(lungo|long)\b', 'Nespresso Lungo, 80),
+    _DrinkRule(r'\bnespresso\s*(vertuo|double)\b', 'Nespresso Vertuo, 120),
+    _DrinkRule(r'\b(pour\s*over|aero\s*press|french\s*press)\b', 'Pour Over Coffee, 140),
+    _DrinkRule(r'\b(drip|brewed|filter)\b', 'Filter Coffee, 140),
     // ── Teas ─────────────────────────────────────────────────────────────────
     _DrinkRule(r'\bgreen\s*tea\b', 'Green Tea', 35),
     _DrinkRule(r'\bmatcha\b', 'Matcha Latte', 70),
