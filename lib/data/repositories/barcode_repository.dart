@@ -39,6 +39,20 @@ const _localMap = <String, _BarcodeEntry>{
   '0049000028928': _BarcodeEntry('Sprite 355ml', 0, 'cola'),
   '0012000010097': _BarcodeEntry('Mello Yello 355ml', 51, 'cola'),
   '0012000050244': _BarcodeEntry('Vault Energy Drink 355ml', 47, 'cola'),
+  // More energy drinks
+  '5060517882056': _BarcodeEntry('Rockstar Sugar Free 500ml', 160, 'energy'),
+  '5060466513190': _BarcodeEntry('Monster Ultra Paradise 500ml', 150, 'energy'),
+  '5060466513206': _BarcodeEntry('Monster Ultra Fiesta 500ml', 150, 'energy'),
+  '5449000214928': _BarcodeEntry('Red Bull 473ml', 151, 'energy'),
+  '5449000214935': _BarcodeEntry('Red Bull Sugarfree 473ml', 151, 'energy'),
+  // More coffee RTD
+  '5000118958493': _BarcodeEntry('Starbucks Frappuccino Vanilla 250ml', 95, 'coffee'),
+  '5000118958509': _BarcodeEntry('Costa Coffee Mocha 250ml', 110, 'coffee'),
+  // More teas & others
+  '5000113098039': _BarcodeEntry('Lipton Iced Tea Lemon 500ml', 18, 'tea'),
+  '0012000012152': _BarcodeEntry('Mountain Dew Baja Blast 355ml', 54, 'cola'),
+  '0049000028935': _BarcodeEntry('Fanta Orange 330ml', 0, 'cola'),
+
 };
 
 class _BarcodeEntry {
